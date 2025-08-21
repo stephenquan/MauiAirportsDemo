@@ -56,9 +56,9 @@ public partial class AppViewModel : ObservableObject
 		if (!searchInProgress)
 		{
 			searchInProgress = true;
-			while (DateTimeOffset.Now.ToUnixTimeMilliseconds() < searchRequestTime + 1000)
+			while (DateTimeOffset.Now.ToUnixTimeMilliseconds() < searchRequestTime + 250)
 			{
-				await Task.Delay(250);
+				await Task.Delay(50);
 			}
 			string currentSearchText = AirportSearchText;
 
@@ -95,7 +95,8 @@ public partial class AppViewModel : ObservableObject
 		Db.DropTable<Airport>();
 		Db.CreateTable<Airport>();
 		int count = 0;
-		using (var stream = await FileSystem.OpenAppPackageFileAsync("airports.csv"))
+		int errors = 0;
+		using (var stream = await FileSystem.OpenAppPackageFileAsync("airports_83520.csv"))
 		using (var reader = new StreamReader(stream))
 		using (var csv = new CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture))
 		{
@@ -109,12 +110,13 @@ public partial class AppViewModel : ObservableObject
 				}
 				catch (Exception ex)
 				{
-					Logger?.LogError(ex, $"{DateTime.Now} Error inserting airport {airport.Name} into the database: {ex.Message}");
+					//Logger?.LogError(ex, $"{DateTime.Now} Error inserting airport {airport.Name} into the database: {ex.Message}");
+					errors = 0;
 				}
 			}
 		}
 		Db.Commit();
-		Logger?.LogDebug($"{DateTime.Now} Airports populated in the SQLite database with {count} records.");
+		Logger?.LogDebug($"{DateTime.Now} Airports populated in the SQLite database with {count} records and {errors} errors.");
 	}
 
 	/// <summary>

@@ -37,6 +37,7 @@ public partial class AirportsPage : ContentPage
 				this.Dispatcher.Dispatch(async () =>
 				{
 					this.IsBusy = true;
+					await Task.Delay(100);
 					await VM.ExecuteAirportSearchAsync();
 					this.IsBusy = false;
 				});
