@@ -17,11 +17,30 @@ public partial class AirportsPage : ContentPage
 	{
 		this.VM = vm;
 		this.BindingContext = this;
+
 		InitializeComponent();
+
 		this.Dispatcher.Dispatch(async () =>
 		{
+			this.IsBusy = true;
+			VM.AirportSearchResults.Clear();
+			await Task.Delay(100);
 			await VM.PopulateAirports();
-			VM.ExecuteAirportSearch();
+			await VM.ExecuteAirportSearchAsync();
+			this.IsBusy = false;
 		});
+
+		this.VM.PropertyChanged += (s, e) =>
+		{
+			if (e.PropertyName == nameof(VM.AirportSearchText))
+			{
+				this.Dispatcher.Dispatch(async () =>
+				{
+					this.IsBusy = true;
+					await VM.ExecuteAirportSearchAsync();
+					this.IsBusy = false;
+				});
+			}
+		};
 	}
 }

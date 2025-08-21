@@ -9,6 +9,10 @@
     <Grid RowDefinitions="Auto,*,Auto">
         <Grid Padding="10">
             <Entry Text="{Binding VM.AirportSearchText, Mode=TwoWay}" />
+            <ActivityIndicator
+                HorizontalOptions="End"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="True" />
         </Grid>
         <Grid Grid.Row="1">
             <CollectionView ItemsSource="{Binding VM.AirportSearchResults}">

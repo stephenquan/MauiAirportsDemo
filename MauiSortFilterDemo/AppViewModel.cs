@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
 using SQLite;
@@ -31,7 +32,7 @@ public partial class AppViewModel : ObservableObject
 	/// Gets a list of airports filtered by the search text.
 	/// </summary>
 	[ObservableProperty]
-	public partial List<Airport> AirportSearchResults { get; set; } = [];
+	public partial ObservableCollection<Airport> AirportSearchResults { get; set; } = [];
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="AppViewModel"/> class.
@@ -40,26 +41,22 @@ public partial class AppViewModel : ObservableObject
 	{
 		Logger?.LogDebug($"{DateTime.Now} AppViewModel constructor called, initializing in-memory SQLite database.");
 		Db = new SQLiteConnection(":memory:");
-		this.PropertyChanged += (s, e) =>
-		{
-			switch (e.PropertyName)
-			{
-				case nameof(AirportSearchText):
-					ExecuteAirportSearch();
-					break;
-			}
-		};
 	}
 
 	/// <summary>
 	/// Executes a search for airports based on the current search text.
 	/// </summary>
-	public void ExecuteAirportSearch()
+	public async Task ExecuteAirportSearchAsync()
 	{
 		Logger?.LogDebug($"{DateTime.Now} Executing airport search with text: '{AirportSearchText}'");
-		AirportSearchResults = Db.Query<Airport>(
+		AirportSearchResults.Clear();
+		var newResults = await Task.Run(() => Db.Query<Airport>(
 			"SELECT * FROM Airport WHERE Name LIKE ? ORDER BY Name LIMIT 201",
-			$"{AirportSearchText}%");
+			$"{AirportSearchText}%"));
+		foreach (var result in newResults)
+		{
+			AirportSearchResults.Add(result);
+		}
 		Logger?.LogDebug($"{DateTime.Now} Airport search completed, found {AirportSearchResults.Count} results.");
 	}
 
