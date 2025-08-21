@@ -9,21 +9,22 @@
     <Grid RowDefinitions="Auto,*,Auto">
         <Grid Padding="10">
             <Entry Text="{Binding VM.AirportSearchText, Mode=TwoWay}" />
-            <ActivityIndicator
-                HorizontalOptions="End"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="True" />
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Padding="10">
             <CollectionView ItemsSource="{Binding VM.AirportSearchResults}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="local:Airport">
-                        <Grid Padding="10">
+                        <Grid Padding="0,5,0,5">
                             <Label Text="{Binding Name}" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <ActivityIndicator
+                HorizontalOptions="Start"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Start" />
         </Grid>
         <Grid Grid.Row="2" Padding="10">
             <Label Text="{Binding VM.AirportSearchResults.Count, StringFormat='Results: {0}'}" />

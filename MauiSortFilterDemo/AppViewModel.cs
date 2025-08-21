@@ -43,28 +43,50 @@ public partial class AppViewModel : ObservableObject
 		Db = new SQLiteConnection(":memory:");
 	}
 
+	long searchRequestTime = 0;
+	bool searchInProgress = false;
+
 	/// <summary>
 	/// Executes a search for airports based on the current search text.
 	/// </summary>
 	public async Task ExecuteAirportSearchAsync()
 	{
-		Logger?.LogDebug($"{DateTime.Now} Executing airport search with text: '{AirportSearchText}'");
-		AirportSearchResults.Clear();
-		var newResults = await Task.Run(() => Db.Query<Airport>(
-			"SELECT * FROM Airport WHERE Name LIKE ? ORDER BY Name LIMIT 201",
-			$"{AirportSearchText}%"));
-		foreach (var result in newResults)
+		searchRequestTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+		if (!searchInProgress)
 		{
-			AirportSearchResults.Add(result);
+			searchInProgress = true;
+			long currentSearchRequestTime = searchRequestTime;
+			string currentSearchText = AirportSearchText;
+			await Task.Delay(1000);
+
+			Logger?.LogDebug($"{DateTime.Now} Executing airport search with text: '{currentSearchText}'");
+			AirportSearchResults.Clear();
+			var newResults = await Task.Run(() => Db.Query<Airport>(
+				"SELECT * FROM Airport WHERE Name LIKE ? ORDER BY Name LIMIT 201",
+				$"%{currentSearchText}%"));
+			AirportSearchResults.Clear();
+			foreach (var result in newResults)
+			{
+				AirportSearchResults.Add(result);
+			}
+			Logger?.LogDebug($"{DateTime.Now} Airport search completed, found {AirportSearchResults.Count} results.");
+
+			searchInProgress = false;
+
+			if (searchRequestTime > currentSearchRequestTime)
+			{
+				Logger?.LogDebug($"{DateTime.Now} Search request was invalidated, re-executing search.");
+				await ExecuteAirportSearchAsync();
+			}
 		}
-		Logger?.LogDebug($"{DateTime.Now} Airport search completed, found {AirportSearchResults.Count} results.");
 	}
 
 	/// <summary>
 	/// Populates the SQLite database with airport data from a predefined text file.
 	/// </summary>
 	/// <returns></returns>
-	public async Task PopulateAirports()
+	public async Task PopulateAirportsAsync()
 	{
 		Logger?.LogDebug($"{DateTime.Now} Populating airports in the SQLite database.");
 		Db.BeginTransaction();

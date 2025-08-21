@@ -25,7 +25,7 @@ public partial class AirportsPage : ContentPage
 			this.IsBusy = true;
 			VM.AirportSearchResults.Clear();
 			await Task.Delay(100);
-			await VM.PopulateAirports();
+			await VM.PopulateAirportsAsync();
 			await VM.ExecuteAirportSearchAsync();
 			this.IsBusy = false;
 		});
