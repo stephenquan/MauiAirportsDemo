@@ -56,9 +56,11 @@ public partial class AppViewModel : ObservableObject
 		if (!searchInProgress)
 		{
 			searchInProgress = true;
-			long currentSearchRequestTime = searchRequestTime;
+			while (DateTimeOffset.Now.ToUnixTimeMilliseconds() < searchRequestTime + 1000)
+			{
+				await Task.Delay(250);
+			}
 			string currentSearchText = AirportSearchText;
-			await Task.Delay(1000);
 
 			Logger?.LogDebug($"{DateTime.Now} Executing airport search with text: '{currentSearchText}'");
 			AirportSearchResults.Clear();
@@ -74,7 +76,7 @@ public partial class AppViewModel : ObservableObject
 
 			searchInProgress = false;
 
-			if (searchRequestTime > currentSearchRequestTime)
+			if (currentSearchText != AirportSearchText)
 			{
 				Logger?.LogDebug($"{DateTime.Now} Search request was invalidated, re-executing search.");
 				await ExecuteAirportSearchAsync();
