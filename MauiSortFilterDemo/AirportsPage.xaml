@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiSortFilterDemo.AirportsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MauiSortFilterDemo"
+    Title="AirportsPage"
+    x:DataType="local:AirportsPage">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Padding="10">
+            <Entry Text="{Binding VM.AirportSearchText, Mode=TwoWay}" />
+        </Grid>
+        <Grid Grid.Row="1">
+            <CollectionView ItemsSource="{Binding VM.AirportSearchResults}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:Airport">
+                        <Grid Padding="10">
+                            <Label Text="{Binding Name}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+        <Grid Grid.Row="2" Padding="10">
+            <Label Text="{Binding VM.AirportSearchResults.Count, StringFormat='Results: {0}'}" />
+        </Grid>
+    </Grid>
+</ContentPage>
