@@ -19,7 +19,6 @@ public static class CsvExtensions
 	/// The task result contains an <see cref="IEnumerable{T}"/> of records parsed from the CSV file.</returns>
 	public static async Task<List<T>> LoadCSVFromMauiAsset<T>(string mauiAsset)
 	{
-		await Task.Yield();
 		using (var stream = await FileSystem.OpenAppPackageFileAsync(mauiAsset))
 		using (var reader = new StreamReader(stream))
 		using (var csv = new CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture))

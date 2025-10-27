@@ -62,7 +62,8 @@ public partial class AirportsPage : ContentPage
 		await Task.Run(() =>
 			db.RunInTransaction(() =>
 			{
-				csvRecords.ForEach(csvData =>
+				foreach (var csvData in csvRecords)
+				{
 					db.Insert(new AirportSQLData
 					{
 						Id = csvData.Id,
@@ -73,8 +74,8 @@ public partial class AirportsPage : ContentPage
 							Longitude = csvData.Longitude,
 							Latitude = csvData.Latitude
 						}
-					})
-				);
+					});
+				}
 			}));
 
 		// Verify data has been loaded.
