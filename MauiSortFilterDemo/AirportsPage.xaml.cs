@@ -1,3 +1,7 @@
+using Microsoft.Extensions.Logging;
+using SQLite;
+using SQuan.Helpers.Maui.Mvvm;
+
 namespace MauiSortFilterDemo;
 
 /// <summary>
@@ -6,42 +10,76 @@ namespace MauiSortFilterDemo;
 public partial class AirportsPage : ContentPage
 {
 	/// <summary>
-	/// Gets the application's main view model.
+	/// Gets the logger instance used to log messages for the AirportsPage.
 	/// </summary>
-	public AppViewModel VM { get; }
+	public static ILogger? Logger { get; } = IPlatformApplication.Current?.Services.GetService<ILogger<AirportsPage>>();
+
+	/// <summary>
+	/// Gets whether the page is currently loading data.
+	/// </summary>
+	[BindableProperty]
+	public partial bool IsLoading { get; private set; } = true;
+
+	SQLiteConnection db { get; } = new(":memory:");
+
+	/// <summary>
+	/// Gets or sets the search text used to filter airport results.
+	/// </summary>
+	[BindableProperty]
+	[NotifyPropertyChangedFor(nameof(Results))]
+	public partial string SearchText { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets the list of airport results from the database.
+	/// </summary>
+	public List<AirportSQLData> Results
+		=> IsLoading
+		? []
+		: string.IsNullOrEmpty(SearchText)
+			? db.Query<AirportSQLData>("SELECT * FROM Airports LIMIT 100")
+			: db.Query<AirportSQLData>($"SELECT * FROM Airports WHERE Name LIKE '{SearchText}%' ORDER BY Name LIMIT 100");
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="AirportsPage"/> class.
 	/// </summary>
-	public AirportsPage(AppViewModel vm)
+	public AirportsPage()
 	{
-		this.VM = vm;
-		this.BindingContext = this;
-
+		BindingContext = this;
 		InitializeComponent();
+		Dispatcher.Dispatch(async () => await PostInitialize());
+	}
 
-		this.Dispatcher.Dispatch(async () =>
-		{
-			this.IsBusy = true;
-			VM.AirportSearchResults.Clear();
-			await Task.Delay(100);
-			await VM.PopulateAirportsAsync();
-			await VM.ExecuteAirportSearchAsync();
-			this.IsBusy = false;
-		});
+	async Task PostInitialize()
+	{
+		IsLoading = true;
 
-		this.VM.PropertyChanged += (s, e) =>
-		{
-			if (e.PropertyName == nameof(VM.AirportSearchText))
+		// Create and populate SQL database from CSV asset.
+		await db.LoadSchemaFromMauiAsset("schema.sql");
+		var csvRecords = await CsvExtensions.LoadCSVFromMauiAsset<AirportCSVData>("airports_83520.csv");
+		await Task.Run(() =>
+			db.RunInTransaction(() =>
 			{
-				this.Dispatcher.Dispatch(async () =>
-				{
-					this.IsBusy = true;
-					await Task.Delay(100);
-					await VM.ExecuteAirportSearchAsync();
-					this.IsBusy = false;
-				});
-			}
-		};
+				csvRecords.ForEach(csvData =>
+					db.Insert(new AirportSQLData
+					{
+						Id = csvData.Id,
+						Name = csvData.Name,
+						Properties = new AirportProperties()
+						{
+							Ident = csvData.Ident,
+							Longitude = csvData.Longitude,
+							Latitude = csvData.Latitude
+						}
+					})
+				);
+			}));
+
+		// Verify data has been loaded.
+		var count = db.ExecuteScalar<int>("SELECT COUNT(*) FROM Airports");
+		Logger?.LogInformation($"Database populated with {count} airport records.");
+
+		// Finalize the initialization.
+		IsLoading = false;
+		OnPropertyChanged(nameof(Results));
 	}
 }

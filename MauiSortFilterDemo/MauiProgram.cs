@@ -21,9 +21,6 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		builder.Logging.AddFilter("MauiSortFilterDemo.AppViewModel", LogLevel.Debug);
-
-		builder.Services.AddSingleton<AppViewModel>();
 		builder.Services.AddTransient<MainPage>();
 		builder.Services.AddTransient<AirportsPage>();
 

@@ -21,7 +21,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Additional .NET MAUI settings -->
-		<MauiVersion>9.0.90</MauiVersion>
+		<MauiVersion>9.0.120</MauiVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>preview</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -70,6 +70,7 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<PackageReference Include="SQuan.Helpers.Maui.Mvvm" Version="9.0.41" />
 	</ItemGroup>
 
 	<ItemGroup>
