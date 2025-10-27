@@ -17,14 +17,14 @@ public static class CsvExtensions
 	/// <param name="mauiAsset">The name of the MAUI asset file containing the CSV data. This parameter cannot be null or empty.</param>
 	/// <returns>A task representing the asynchronous operation.
 	/// The task result contains an <see cref="IEnumerable{T}"/> of records parsed from the CSV file.</returns>
-	public static async Task<List<T>> LoadCSVFromMauiAsset<T>(string mauiAsset)
+	public static async Task<IEnumerable<T>> LoadCSVFromMauiAsset<T>(string mauiAsset)
 	{
 		await Task.Yield();
 		using (var stream = await FileSystem.OpenAppPackageFileAsync(mauiAsset))
 		using (var reader = new StreamReader(stream))
 		using (var csv = new CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture))
 		{
-			return csv.GetRecords<T>().ToList();
+			return csv.GetRecords<T>();
 		}
 	}
 }
