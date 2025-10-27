@@ -32,9 +32,9 @@ public class AirportSQLData
 	/// Gets the deserialized properties of the airport.
 	/// </summary>
 	[SQLite.Ignore]
-	public AirportProperties? Properties
+	public AirportCSVData? Properties
 	{
-		get => JsonSerializer.Deserialize<AirportProperties>(PropertiesText);
-		set => PropertiesText = JsonSerializer.Serialize(value);
+		get => JsonSerializer.Deserialize<AirportCSVData>(PropertiesText);
+		set => PropertiesText = JsonSerializer.Serialize(value, new JsonSerializerOptions { WriteIndented = true });
 	}
 }

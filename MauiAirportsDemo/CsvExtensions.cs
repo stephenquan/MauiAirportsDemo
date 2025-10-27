@@ -23,6 +23,7 @@ public static class CsvExtensions
 		using (var reader = new StreamReader(stream))
 		using (var csv = new CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture))
 		{
+			csv.Context.TypeConverterOptionsCache.GetOptions<string>().NullValues.Add("");
 			return csv.GetRecords<T>().ToList();
 		}
 	}

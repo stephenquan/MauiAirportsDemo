@@ -16,26 +16,41 @@
                     <Label Text="Greater Melbourne" VerticalOptions="Center" />
                     <CheckBox IsChecked="{Binding InsideLosAngelesMBR, Mode=TwoWay}" />
                     <Label Text="Greater Los Angeles" VerticalOptions="Center" />
+                    <CheckBox IsChecked="{Binding HasIATA, Mode=TwoWay}" />
+                    <Label Text="IATA" VerticalOptions="Center" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Grid>
         <Grid Grid.Row="1" Padding="10">
-            <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
-                <Label Text="Name" />
-                <Label Grid.Column="1" Text="IATA" />
-                <Label Grid.Column="2" Text="Longitude" />
-                <Label Grid.Column="3" Text="Latitude" />
+            <Grid Padding="0,5,0,5" ColumnDefinitions="50,*,150,150,150">
+                <Label Grid.Column="1" Text="Name" />
+                <Label Grid.Column="2" Text="IATA" />
+                <Label Grid.Column="3" Text="Longitude" />
+                <Label Grid.Column="4" Text="Latitude" />
             </Grid>
         </Grid>
         <Grid Grid.Row="2" Padding="10">
             <CollectionView ItemsSource="{Binding Results}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="local:AirportSQLData">
-                        <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
-                            <Label Text="{Binding Name}" />
-                            <Label Grid.Column="1" Text="{Binding Properties.IATA}" />
-                            <Label Grid.Column="2" Text="{Binding Properties.Longitude, StringFormat='{0:F3}'}" />
-                            <Label Grid.Column="3" Text="{Binding Properties.Latitude, StringFormat='{0:F3}'}" />
+                        <Grid Padding="0,5,0,5" ColumnDefinitions="50,*,150,150,150">
+                            <Button
+                                Padding="0"
+                                BackgroundColor="Transparent"
+                                BorderColor="Blue"
+                                BorderWidth="1"
+                                Clicked="OnInfoClicked"
+                                CornerRadius="10"
+                                HeightRequest="20"
+                                MinimumHeightRequest="20"
+                                MinimumWidthRequest="20"
+                                Text="i"
+                                TextColor="Blue"
+                                WidthRequest="20" />
+                            <Label Grid.Column="1" Text="{Binding Name}" />
+                            <Label Grid.Column="2" Text="{Binding Properties.IATACode}" />
+                            <Label Grid.Column="3" Text="{Binding Properties.LongitudeDeg, StringFormat='{0:F3}'}" />
+                            <Label Grid.Column="4" Text="{Binding Properties.LatitudeDeg, StringFormat='{0:F3}'}" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

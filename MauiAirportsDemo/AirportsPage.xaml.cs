@@ -1,5 +1,6 @@
 // AirportsPage.xaml.cs
 
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SQLite;
 using SQuan.Helpers.Maui.Mvvm;
@@ -38,6 +39,13 @@ public partial class AirportsPage : ContentPage
 	public partial bool InsideLosAngelesMBR { get; set; } = false;
 
 	/// <summary>
+	/// Gets or sets whether to filter for airports with IATA codes.
+	/// </summary>
+	[BindableProperty]
+	[NotifyPropertyChangedFor(nameof(Results))]
+	public partial bool HasIATA { get; set; } = false;
+
+	/// <summary>
 	/// Gets or sets the search text used to filter airport results.
 	/// </summary>
 	[BindableProperty]
@@ -59,12 +67,19 @@ public partial class AirportsPage : ContentPage
 			string selectClause = "SELECT a.*";
 			string fromClause = "FROM Airports a";
 			string fromClause2 = "";
-			string whereClause = "WHERE Length(JsonProperty(a.Properties, 'iata')) > 0 ";
+			string whereClause = "WHERE 1 = 1";
 			string orderClause = "";
 			string limitClause = "LIMIT 100";
 
+			if (HasIATA)
+			{
+				whereClause += $@"
+AND JsonProperty(a.Properties, 'iata_code') is not null
+";
+			}
+
 			orderClause = $@"
-ORDER BY JsonProperty(a.Properties, 'iata'),
+ORDER BY Length(JsonProperty(a.Properties, 'iata_code')) DESC,
          a.Name
 ";
 
@@ -72,7 +87,7 @@ ORDER BY JsonProperty(a.Properties, 'iata'),
 			{
 				whereClause += $@"
 AND (a.Name LIKE '{SearchText}%'
-     OR JsonProperty(a.Properties, 'iata') LIKE '%{SearchText}%')
+     OR JsonProperty(a.Properties, 'iata_code') LIKE '%{SearchText}%')
 ";
 			}
 
@@ -139,13 +154,10 @@ AND a.Id = r.Id
 					{
 						Id = csvData.Id,
 						Name = csvData.Name,
-						Properties = new AirportProperties()
+						PropertiesText = JsonSerializer.Serialize(csvData, new JsonSerializerOptions
 						{
-							Ident = csvData.Ident,
-							Longitude = csvData.Longitude,
-							Latitude = csvData.Latitude,
-							IATA = csvData.IATA
-						}
+							WriteIndented = true
+						}),
 					});
 				}
 			}));
@@ -156,5 +168,11 @@ AND a.Id = r.Id
 
 		// Finalize the initialization.
 		IsLoading = false;
+	}
+
+	async void OnInfoClicked(object sender, EventArgs e)
+	{
+		AirportSQLData? airport = ((VisualElement)sender).BindingContext as AirportSQLData;
+		await DisplayAlert(airport?.Name, airport?.PropertiesText, "OK");
 	}
 }
