@@ -20,6 +20,7 @@ public partial class AirportsPage : ContentPage
 	/// Gets whether the page is currently loading data.
 	/// </summary>
 	[BindableProperty]
+	[NotifyPropertyChangedFor(nameof(Results))]
 	public partial bool IsLoading { get; private set; } = true;
 
 	SQLiteConnection db { get; } = new(":memory:");
@@ -82,6 +83,5 @@ public partial class AirportsPage : ContentPage
 
 		// Finalize the initialization.
 		IsLoading = false;
-		OnPropertyChanged(nameof(Results));
 	}
 }
