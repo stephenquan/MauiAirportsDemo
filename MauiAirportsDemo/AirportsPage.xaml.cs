@@ -24,11 +24,18 @@ public partial class AirportsPage : ContentPage
 	public partial bool IsLoading { get; private set; } = true;
 
 	/// <summary>
-	/// Gets whether the Melbourne MBR filter is applied.
+	/// Gets or setts whether the Melbourne MBR filter is applied.
 	/// </summary>
 	[BindableProperty]
 	[NotifyPropertyChangedFor(nameof(Results))]
-	public partial bool MelbourneMBR { get; set; } = false;
+	public partial bool InsideMelbourneMBR { get; set; } = false;
+
+	/// <summary>
+	/// Gets or sets whether the Los Angeles MBR filter is applied.
+	/// </summary>
+	[BindableProperty]
+	[NotifyPropertyChangedFor(nameof(Results))]
+	public partial bool InsideLosAngelesMBR { get; set; } = false;
 
 	/// <summary>
 	/// Gets or sets the search text used to filter airport results.
@@ -51,30 +58,48 @@ public partial class AirportsPage : ContentPage
 
 			string selectClause = "SELECT a.*";
 			string fromClause = "FROM Airports a";
-			string whereClause = "WHERE 1 = 1";
+			string fromClause2 = "";
+			string whereClause = "WHERE Length(JsonProperty(a.Properties, 'iata')) > 0 ";
 			string orderClause = "";
 			string limitClause = "LIMIT 100";
 
+			orderClause = $@"
+ORDER BY JsonProperty(a.Properties, 'iata'),
+         a.Name
+";
+
 			if (!string.IsNullOrEmpty(SearchText))
 			{
-				whereClause += $" AND a.Name LIKE '{SearchText}%'";
-				orderClause = "ORDER BY a.Name";
+				whereClause += $@"
+AND (a.Name LIKE '{SearchText}%'
+     OR JsonProperty(a.Properties, 'iata') LIKE '%{SearchText}%')
+";
 			}
 
-			if (MelbourneMBR)
+			if (InsideMelbourneMBR)
 			{
-				fromClause += ", Airports_RTree r";
+				fromClause2 = ", Airports_RTree r";
 				whereClause += $@"
 AND r.MinX <= 145.5 AND r.MaxX >= 144.4
 AND r.MinY <= -37.5 AND r.MaxY >= -38.3
 AND a.Id = r.Id
 ";
-				orderClause = "ORDER BY a.Name";
+			}
+
+			if (InsideLosAngelesMBR)
+			{
+				fromClause2 = ", Airports_RTree r";
+				whereClause += $@"
+AND r.MinX <= -116.8667 AND r.MaxX >= -119.0833
+AND r.MinY <= 34.8233 AND r.MaxY >= 33.4333
+AND a.Id = r.Id
+";
 			}
 
 			return db.Query<AirportSQLData>($@"
 {selectClause}
 {fromClause}
+{fromClause2}
 {whereClause}
 {orderClause}
 {limitClause}
@@ -118,7 +143,8 @@ AND a.Id = r.Id
 						{
 							Ident = csvData.Ident,
 							Longitude = csvData.Longitude,
-							Latitude = csvData.Latitude
+							Latitude = csvData.Latitude,
+							IATA = csvData.IATA
 						}
 					});
 				}
@@ -127,21 +153,6 @@ AND a.Id = r.Id
 		// Verify data has been loaded.
 		var count = db.ExecuteScalar<int>("SELECT COUNT(*) FROM Airports");
 		Logger?.LogInformation($"Database populated with {count} airport records.");
-
-		// Test the R*Tree spatial index.
-		var search = db.Query<AirportSQLData>(@"
-SELECT a.*
-FROM   Airports a
-JOIN   Airports_RTree r ON a.Id = r.Id
-WHERE  r.MinX <= 145.5 AND r.MaxX >= 144.4
-AND    r.MinY <= -37.5 AND r.MaxY >= -38.3
-ORDER BY a.Name
-;");
-		Logger?.LogInformation($"R*Tree spatial search found {search.Count} airports in Greater Melbourne (Victoria, Australia).");
-		foreach (var airport in search)
-		{
-			Logger?.LogInformation($"Found airport in R*Tree search: {airport.Name} ({airport.Properties?.Ident})");
-		}
 
 		// Finalize the initialization.
 		IsLoading = false;

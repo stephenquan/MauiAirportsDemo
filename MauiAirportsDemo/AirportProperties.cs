@@ -26,4 +26,10 @@ public class AirportProperties
 	/// </summary>
 	[JsonPropertyName("latitude")]
 	public double Latitude { get; set; } = 0.0;
+
+	/// <summary>
+	/// Gets or sets the IATA code of the airport.
+	/// </summary>
+	[JsonPropertyName("iata")]
+	public string IATA { get; set; } = string.Empty;
 }

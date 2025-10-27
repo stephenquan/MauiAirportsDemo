@@ -18,6 +18,11 @@ CREATE VIRTUAL TABLE Airports_rtree USING rtree(Id, MinX, MaxX, MinY, MaxY);
 -- Add indexes.
 CREATE INDEX IF NOT EXISTS IX_Airports_Id ON Airports (Id);
 CREATE INDEX IF NOT EXISTS IX_Airports_Name ON Airports (Name);
+CREATE INDEX IF NOT EXISTS IX_Airports_IATA_Name ON Airports (
+    JsonProperty(Properties, 'iata'),
+    Name);
+CREATE INDEX IF NOT EXISTS IX_Airports_Longitude ON Airports (JsonProperty(Properties, 'longitude'));
+CREATE INDEX IF NOT EXISTS IX_Airports_Latitude ON Airports (JsonProperty(Properties, 'latitude'));
 
 -- Add triggers to keep the RTree index in sync.
 CREATE TRIGGER IF NOT EXISTS Airports_AfterInsert

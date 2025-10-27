@@ -11,15 +11,18 @@
             <VerticalStackLayout Spacing="10">
                 <Entry Text="{Binding SearchText, Mode=TwoWay}" />
                 <HorizontalStackLayout Spacing="5">
-                    <CheckBox IsChecked="{Binding MelbourneMBR, Mode=TwoWay}" />
-                    <Label Text="Limit to Greater Melbourne, Victoria, Australia" VerticalOptions="Center" />
+                    <Label Text="Limit to" VerticalOptions="Center" />
+                    <CheckBox IsChecked="{Binding InsideMelbourneMBR, Mode=TwoWay}" />
+                    <Label Text="Greater Melbourne" VerticalOptions="Center" />
+                    <CheckBox IsChecked="{Binding InsideLosAngelesMBR, Mode=TwoWay}" />
+                    <Label Text="Greater Los Angeles" VerticalOptions="Center" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Grid>
         <Grid Grid.Row="1" Padding="10">
             <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
                 <Label Text="Name" />
-                <Label Grid.Column="1" Text="Ident" />
+                <Label Grid.Column="1" Text="IATA" />
                 <Label Grid.Column="2" Text="Longitude" />
                 <Label Grid.Column="3" Text="Latitude" />
             </Grid>
@@ -30,7 +33,7 @@
                     <DataTemplate x:DataType="local:AirportSQLData">
                         <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
                             <Label Text="{Binding Name}" />
-                            <Label Grid.Column="1" Text="{Binding Properties.Ident}" />
+                            <Label Grid.Column="1" Text="{Binding Properties.IATA}" />
                             <Label Grid.Column="2" Text="{Binding Properties.Longitude, StringFormat='{0:F3}'}" />
                             <Label Grid.Column="3" Text="{Binding Properties.Latitude, StringFormat='{0:F3}'}" />
                         </Grid>

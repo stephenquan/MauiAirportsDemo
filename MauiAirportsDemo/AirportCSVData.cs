@@ -43,4 +43,10 @@ public partial class AirportCSVData
 	[CsvHelper.Configuration.Attributes.Name("latitude_deg")]
 	public double Latitude { get; set; } = 0.0;
 
+	/// <summary>
+	/// Gets or sets the airport IATA code.
+	/// </summary>
+	[CsvHelper.Configuration.Attributes.Name("iata_code")]
+	public string IATA { get; set; } = string.Empty;
+
 }

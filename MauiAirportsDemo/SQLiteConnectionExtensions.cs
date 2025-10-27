@@ -65,7 +65,13 @@ public static class SQLiteConnectionExtensions
 	/// <param name="db">The SQLite connection to which the JSON functions will be added. Cannot be null.</param>
 	public static void CreateJsonFunctions(this SQLiteConnection db)
 	{
-		SQLitePCL.raw.sqlite3_create_function(db.Handle, "JsonProperty", 2, SQLitePCL.raw.SQLITE_UTF8 | SQLitePCL.raw.SQLITE_DETERMINISTIC, JsonProperty);
+		SQLitePCL.raw.sqlite3_create_function(
+			db.Handle,
+			"JsonProperty",
+			2,
+			SQLitePCL.raw.SQLITE_UTF8 | SQLitePCL.raw.SQLITE_DETERMINISTIC,
+			null,
+			JsonProperty);
 	}
 
 	static void JsonProperty(sqlite3_context ctx, object user_data, sqlite3_value[] args)
