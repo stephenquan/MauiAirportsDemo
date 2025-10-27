@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiAirportsDemo.AirportsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MauiAirportsDemo"
+    Title="AirportsPage"
+    x:DataType="local:AirportsPage">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <Grid Padding="10">
+            <Entry Text="{Binding SearchText, Mode=TwoWay}" />
+        </Grid>
+        <Grid Grid.Row="1" Padding="10">
+            <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
+                <Label Text="Name" />
+                <Label Grid.Column="1" Text="Ident" />
+                <Label Grid.Column="2" Text="Longitude" />
+                <Label Grid.Column="3" Text="Latitude" />
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" Padding="10">
+            <CollectionView ItemsSource="{Binding Results}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:AirportSQLData">
+                        <Grid Padding="0,5,0,5" ColumnDefinitions="*,150,150,150">
+                            <Label Text="{Binding Name}" />
+                            <Label Grid.Column="1" Text="{Binding Properties.Ident}" />
+                            <Label Grid.Column="2" Text="{Binding Properties.Longitude, StringFormat='{0:F3}'}" />
+                            <Label Grid.Column="3" Text="{Binding Properties.Latitude, StringFormat='{0:F3}'}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <ActivityIndicator
+                HorizontalOptions="Start"
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                VerticalOptions="Start" />
+        </Grid>
+        <Grid Grid.Row="3" Padding="10">
+            <Label Text="{Binding Results.Count, StringFormat='Results: {0}'}" />
+        </Grid>
+    </Grid>
+</ContentPage>
